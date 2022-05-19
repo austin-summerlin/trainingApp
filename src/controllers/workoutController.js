@@ -37,8 +37,15 @@ const createWorkout = (req, res) => {
 };
 
 const updateWorkout = (req, res) => {
-  const updatedWorkout = workoutService.updateWorkout();
-  res.send('Update a Workout');
+  const {
+    body,
+    params: { workoutId },
+  } = req;
+  if (!workoutId) {
+    return;
+  }
+  const updatedWorkout = workoutService.updateWorkout(workoutId, body);
+  res.send({ status: "OK", data: updatedWorkout });
 };
 
 const deleteWorkout = (req, res) => {
