@@ -2,7 +2,11 @@ const DB = require('./db.json');
 const { saveToDatabase } = require('./utils');
 
 const getAllworkouts = () => {
-  return DB.workouts;
+  try {
+    return DB.workouts;
+  } catch (error) {
+    throw { status: 500, message: error };
+  }
 };
 
 const getOneWorkout = (workoutId) => {
