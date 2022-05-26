@@ -1,17 +1,36 @@
 const workoutService = require('../services/workoutService');
 
 const getAllworkouts = (req, res) => {
-  const allWorkouts = workoutService.getAllworkouts();
-  res.send({ status: "ok", data: allWorkouts });
+  try {
+    const allWorkouts = workoutService.getAllworkouts();
+    res.send({ status: "ok", data: allWorkouts });
+  } catch (error) {
+    res
+      .status(error?.status || 500)
+      .send({ status: "error", message: error?.message || error });
+  }
 };
 
 const getOneWorkout = (req, res) => {
-  const { params: { workoutId } } = req;
+  const {
+    params: { workoutId }
+  } = req;
   if (!workoutId) {
-    return;
+    res
+      .status(400)
+      .send({
+        status: "Failed",
+        data: { error: "Parameter `:workoutId` is missing" },
+      });
   }
-  const workout = workoutService.getOneWorkout(workoutId);
-  res.send({ status: "OK", data: workout });
+  try {
+    const workout = workoutService.getOneWorkout(workoutId);
+    res.send({ status: "OK", data: workout });
+  } catch (error) {
+    res
+      .status(error?.status || 500)
+      .send({ status: "error", message: error?.message || error });
+  }
 };
 
 const createWorkout = (req, res) => {
@@ -23,6 +42,14 @@ const createWorkout = (req, res) => {
     !body.exercises ||
     !body.trainerTips
   ) {
+    res
+      .status(400)
+      .send({
+        status: "Failed",
+        data: {
+          error: "one of the following keys is missing: name, mode, equipment, exercises, trainerTips"
+        },
+      });
     return;
   }
   const newWorkout = {
@@ -32,8 +59,14 @@ const createWorkout = (req, res) => {
     exercises: body.exercises,
     trainerTips: body.trainerTips,
   };
-  const createdWorkout = workoutService.createWorkout(newWorkout);
-  res.status(201).send({ status: "ok", data: createdWorkout });
+  try {
+    const createdWorkout = workoutService.createWorkout(newWorkout);
+    res.status(201).send({ status: "ok", data: createdWorkout });
+  } catch (error) {
+    res
+      .status(error?.status || 500)
+      .send({ status: "Failed", data: { error: error?.message || error } });
+  }
 };
 
 const updateWorkout = (req, res) => {
@@ -42,10 +75,21 @@ const updateWorkout = (req, res) => {
     params: { workoutId },
   } = req;
   if (!workoutId) {
-    return;
+    res
+      .status(400)
+      .send({
+        status: "Failed",
+        data: { error: "Parameter `:workoutId` is missing" },
+      });
   }
-  const updatedWorkout = workoutService.updateWorkout(workoutId, body);
-  res.send({ status: "OK", data: updatedWorkout });
+  try {
+    const updatedWorkout = workoutService.updateWorkout(workoutId, body);
+    res.send({ status: "OK", data: updatedWorkout });
+  } catch (error) {
+    res
+      .status(error?.status || 500)
+      .send({ status: "error", message: error?.message || error });
+  }
 };
 
 const deleteWorkout = (req, res) => {
@@ -53,10 +97,21 @@ const deleteWorkout = (req, res) => {
     params: { workoutId },
   } = req;
   if (!workoutId) {
-    return;
+    res
+      .status(400)
+      .send({
+        status: "Failed",
+        data: { error: "Parameter `:workoutId` is missing" },
+      });
   }
-  workoutService.deleteWorkout(workoutId);
-  res.status(204).send({ status: "OK" });
+  try {
+    workoutService.deleteWorkout(workoutId);
+    res.status(204).send({ status: "OK" });
+  } catch (error) {
+    res
+      .status(error?.status || 500)
+      .send({ status: "error", message: error?.message || error });
+  }
 };
 
 module.exports = {
