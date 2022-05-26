@@ -23,6 +23,14 @@ const createWorkout = (req, res) => {
     !body.exercises ||
     !body.trainerTips
   ) {
+    res
+      .status(400)
+      .send({
+        status: "Failed",
+        data: {
+          error: "one of the following keys is missing: name, mode, equipment, exercises, trainerTips"
+        },
+      });
     return;
   }
   const newWorkout = {
@@ -32,8 +40,14 @@ const createWorkout = (req, res) => {
     exercises: body.exercises,
     trainerTips: body.trainerTips,
   };
-  const createdWorkout = workoutService.createWorkout(newWorkout);
-  res.status(201).send({ status: "ok", data: createdWorkout });
+  try {
+    const createdWorkout = workoutService.createWorkout(newWorkout);
+    res.status(201).send({ status: "ok", data: createdWorkout });
+  } catch (error) {
+    res
+      .status(error?.status || 500)
+      .send({ status: "Failed", data: { error: error?.message || error } });
+  }
 };
 
 const updateWorkout = (req, res) => {
