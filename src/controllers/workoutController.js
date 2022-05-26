@@ -97,10 +97,21 @@ const deleteWorkout = (req, res) => {
     params: { workoutId },
   } = req;
   if (!workoutId) {
-    return;
+    res
+      .status(400)
+      .send({
+        status: "Failed",
+        data: { error: "Parameter `:workoutId` is missing" },
+      });
   }
-  workoutService.deleteWorkout(workoutId);
-  res.status(204).send({ status: "OK" });
+  try {
+    workoutService.deleteWorkout(workoutId);
+    res.status(204).send({ status: "OK" });
+  } catch (error) {
+    res
+      .status(error?.status || 500)
+      .send({ status: "error", message: error?.message || error });
+  }
 };
 
 module.exports = {
