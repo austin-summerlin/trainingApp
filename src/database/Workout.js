@@ -10,11 +10,18 @@ const getAllworkouts = () => {
 };
 
 const getOneWorkout = (workoutId) => {
-  const workout = DB.workouts.find((workout) => workout.id === workoutId);
-  if (!workout) {
-    return;
+  try {
+    const workout = DB.workouts.find((workout) => workout.id === workoutId);
+    if (!workout) {
+      throw {
+        status: 400,
+        message: `Workout with id ${workoutId} not found`,
+      };
+    }
+    return workout;
+  } catch (error) {
+    throw { status: error?.status || 500, message: error?.message || error };
   }
-  return workout;
 };
 
 const createNewWorkout = (newWorkout) => {

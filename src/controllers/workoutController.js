@@ -12,12 +12,25 @@ const getAllworkouts = (req, res) => {
 };
 
 const getOneWorkout = (req, res) => {
-  const { params: { workoutId } } = req;
+  const {
+    params: { workoutId }
+  } = req;
   if (!workoutId) {
-    return;
+    res
+      .status(400)
+      .send({
+        status: "Failed",
+        data: { error: "Parameter `:workoutId` is missing" },
+      });
   }
-  const workout = workoutService.getOneWorkout(workoutId);
-  res.send({ status: "OK", data: workout });
+  try {
+    const workout = workoutService.getOneWorkout(workoutId);
+    res.send({ status: "OK", data: workout });
+  } catch (error) {
+    res
+      .status(error?.status || 500)
+      .send({ status: "error", message: error?.message || error });
+  }
 };
 
 const createWorkout = (req, res) => {
