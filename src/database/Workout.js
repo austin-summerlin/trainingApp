@@ -43,20 +43,35 @@ const createNewWorkout = (newWorkout) => {
 };
 
 const updateWorkout = (workoutId, changes) => {
-  const indexForUpdate = DB.workouts.findIndex(
-    (workout) => workout.id === workoutId
-  );
-  if (indexForUpdate === -1) {
-    return;
+  try {
+    const isAlreadyAdded =
+      DB.workouts.findIndex((workout) => workout.name === changes.name) !== -1;
+    if (isAlreadyAdded) {
+      throw {
+        status: 400,
+        message: 'Workout with this name `${changes.name}` already exists',
+      };
+    }
+    const indexForUpdate = DB.workouts.findIndex(
+      (workout) => workout.id === workoutId
+    );
+    if (indexForUpdate === -1) {
+      throw {
+        status: 400,
+        message: `Workout with id ${workoutId} not found`,
+      };
+    }
+    const updatedWorkout = {
+      ...DB.workouts[indexForUpdate],
+      ...changes,
+      updatedAt: new Date().toLocaleString('en-US', { timeZone: 'UTC' }),
+    };
+    DB.workouts[indexForUpdate] = updatedWorkout;
+    saveToDatabase(DB);
+    return updatedWorkout;
+  } catch (error) {
+    throw { status: error?.status || 500, message: error?.message || error };
   }
-  const updatedWorkout = {
-    ...DB.workouts[indexForUpdate],
-    ...changes,
-    updatedAt: new Date().toLocaleString('en-US', { timeZone: 'UTC' }),
-  };
-  DB.workouts[indexForUpdate] = updatedWorkout;
-  saveToDatabase(DB);
-  return updatedWorkout;
 };
 
 const deleteWorkout = (workoutId) => {

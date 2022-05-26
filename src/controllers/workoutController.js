@@ -75,10 +75,21 @@ const updateWorkout = (req, res) => {
     params: { workoutId },
   } = req;
   if (!workoutId) {
-    return;
+    res
+      .status(400)
+      .send({
+        status: "Failed",
+        data: { error: "Parameter `:workoutId` is missing" },
+      });
   }
-  const updatedWorkout = workoutService.updateWorkout(workoutId, body);
-  res.send({ status: "OK", data: updatedWorkout });
+  try {
+    const updatedWorkout = workoutService.updateWorkout(workoutId, body);
+    res.send({ status: "OK", data: updatedWorkout });
+  } catch (error) {
+    res
+      .status(error?.status || 500)
+      .send({ status: "error", message: error?.message || error });
+  }
 };
 
 const deleteWorkout = (req, res) => {
